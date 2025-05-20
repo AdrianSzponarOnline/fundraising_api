@@ -1,6 +1,5 @@
 package com.TaskSii.service;
 
-import com.TaskSii.dto.CollectionBoxDTO;
 import com.TaskSii.exception.InvalidOperationException;
 import com.TaskSii.exception.ResourceNotFoundException;
 import com.TaskSii.model.CollectionBox;
@@ -10,11 +9,8 @@ import com.TaskSii.repository.CollectionBoxRepository;
 import com.TaskSii.repository.FundraisingEventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class CollectionBoxService {
@@ -32,13 +28,8 @@ public class CollectionBoxService {
         CollectionBox box = new CollectionBox();
         return collectionBoxRepository.save(box);
     }
-    public List<CollectionBoxDTO> getAllBoxes(){
-        return collectionBoxRepository.findAll().stream()
-                .map(box -> new CollectionBoxDTO(
-                        box.getId(),
-                        box.isEmpty(),
-                        box.getFundraisingEvent() != null
-                )).collect(Collectors.toList());
+    public List<CollectionBox> getAllBoxes(){
+        return collectionBoxRepository.findAll();
     }
     public void deleteBox(Long boxId){
         CollectionBox box = collectionBoxRepository.findById(boxId)
@@ -57,6 +48,8 @@ public class CollectionBoxService {
         }
         FundraisingEvent event = fundraisingEventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event with id " + eventId + " not found"));
+        box.setFundraisingEvent(event);
+        collectionBoxRepository.save(box);
     }
     public void addMoney(Long boxId, Currency currency, BigDecimal amount){
         if(amount == null || amount.compareTo(BigDecimal.ZERO) <= 0){
@@ -69,5 +62,4 @@ public class CollectionBoxService {
         box.setEmpty(false);
         collectionBoxRepository.save(box);
     }
-
 }

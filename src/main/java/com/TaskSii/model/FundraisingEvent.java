@@ -27,8 +27,6 @@ public class FundraisingEvent {
         this.currency = currency;
     }
 
-
-
     public String getName() {
         return name;
     }

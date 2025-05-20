@@ -1,6 +1,10 @@
 package com.TaskSii.dto;
 
+import jakarta.validation.constraints.NotNull;
+
 public class AssignBoxDTO {
+
+    @NotNull(message = "Event id cannot be null")
     private Long eventId;
 
     public AssignBoxDTO() {

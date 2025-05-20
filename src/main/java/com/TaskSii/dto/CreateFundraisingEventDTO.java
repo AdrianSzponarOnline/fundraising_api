@@ -1,9 +1,13 @@
 package com.TaskSii.dto;
-
-import java.util.Currency;
+import com.TaskSii.model.Currency;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public class CreateFundraisingEventDTO {
+    @NotBlank(message = "Event name cannot be blank")
     private String eventName;
+
+    @NotNull(message = "Currency cannot be null")
     private Currency currency;
 
     public CreateFundraisingEventDTO() {

@@ -1,5 +1,7 @@
 package com.TaskSii.service;
 
+import com.TaskSii.model.Currency;
+import com.TaskSii.model.FundraisingEvent;
 import com.TaskSii.repository.FundraisingEventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,11 @@ public class FundraisingEventService {
     public FundraisingEventService(FundraisingEventRepository fundraisingEventRepository) {
         this.fundraisingEventRepository = fundraisingEventRepository;
     }
-    // TODO - dokończyć serwis do tworzenia eventów, po czym wrócić do testowania przypisywania pudełek do eventów
+
+    public FundraisingEvent createFundraisingEvent(String eventName, Currency currency) {
+        FundraisingEvent f = new FundraisingEvent(eventName, currency);
+        return fundraisingEventRepository.save(f);
+    }
+
 
 }
