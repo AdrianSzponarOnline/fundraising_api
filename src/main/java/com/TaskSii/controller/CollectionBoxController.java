@@ -53,4 +53,10 @@ public class CollectionBoxController {
         collectionBoxService.addMoney(id, dto.getCurrency(), dto.getAmount());
         return ResponseEntity.ok().build();
     }
+    @PostMapping("/{id}/transfer")
+    public ResponseEntity<Void> transfer(@PathVariable Long id) {
+        collectionBoxService.transferMoneyToEvent(id);
+        return ResponseEntity.ok().build();
+    }
+
 }
