@@ -1,13 +1,10 @@
 package com.TaskSii.service;
-
 import com.TaskSii.exception.InvalidOperationException;
 import com.TaskSii.model.Currency;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
