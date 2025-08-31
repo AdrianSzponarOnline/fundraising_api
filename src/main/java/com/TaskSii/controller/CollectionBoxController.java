@@ -58,5 +58,4 @@ public class CollectionBoxController {
         collectionBoxService.transferMoneyToEvent(id);
         return ResponseEntity.ok().build();
     }
-
 }
