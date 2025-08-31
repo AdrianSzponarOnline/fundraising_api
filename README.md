@@ -1,5 +1,3 @@
-# Task_Sii
-
 Fundraising Box Manager
 A Spring Boot application for managing fundraising events and collection boxes. Includes support for multi-currency donation tracking and real-time exchange rate conversion via
 https://exchangerate.host.
