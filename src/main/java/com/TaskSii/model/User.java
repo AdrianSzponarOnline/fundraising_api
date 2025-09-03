@@ -14,10 +14,10 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long user_id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(name = "pwd")
+    @Column(name = "pwd", nullable = false)
     private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)

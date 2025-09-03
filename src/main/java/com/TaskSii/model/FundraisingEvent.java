@@ -1,6 +1,8 @@
 package com.TaskSii.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.math.BigDecimal;
 
@@ -11,6 +13,7 @@ public class FundraisingEvent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false, length = 255)
     String name;
 
     @Enumerated(EnumType.STRING)
@@ -18,6 +21,13 @@ public class FundraisingEvent {
 
     @Column(nullable = false)
     private BigDecimal accountBalance = BigDecimal.ZERO;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id",
+                nullable = false,
+                foreignKey = @ForeignKey(name = "fk_fundraising_owner"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private OwnerProfile ownerProfile;
 
     public FundraisingEvent() {
     }
@@ -59,6 +69,11 @@ public class FundraisingEvent {
         this.accountBalance = accountBalance;
     }
 
-    //helper methods
+    public OwnerProfile getOwnerProfile() {
+        return ownerProfile;
+    }
 
+    public void setOwnerProfile(OwnerProfile ownerProfile) {
+        this.ownerProfile = ownerProfile;
+    }
 }

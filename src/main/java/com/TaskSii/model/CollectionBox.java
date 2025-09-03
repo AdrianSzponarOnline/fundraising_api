@@ -3,6 +3,8 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.Map;
 
+
+// TODO check if amount of money can be transfered multiple times
 @Entity
 @Table(name = "collection_box")
 public class CollectionBox {
