@@ -1,0 +1,179 @@
+{
+  "info": {
+    "name": "TaskSii API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman collection for TaskSii backend"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api","auth","login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user1@example.com\",\n  \"password\": \"Password1\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get current user",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/auth/me", "host": ["{{baseUrl}}"], "path": ["api","auth","me"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Register user",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api","auth","register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user1@example.com\",\n  \"password\": \"Password1\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register owner",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/auth/register/owner", "host": ["{{baseUrl}}"], "path": ["api","auth","register","owner"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"owner1@example.com\",\n  \"password\": \"Password1\",\n  \"organizationName\": \"My Charity\",\n  \"nip\": \"1234567890\",\n  \"regon\": \"123456789\",\n  \"krs\": \"1234567890\",\n  \"phoneNumber\": \"+48123123123\",\n  \"addresses\": [\n    {\n      \"streetName\": \"Main 1\",\n      \"city\": \"Warsaw\",\n      \"state\": \"Maz\",\n      \"country\": \"PL\",\n      \"postalCode\": \"00-001\"\n    }\n  ]\n}"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "Create event",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/events", "host": ["{{baseUrl}}"], "path": ["api","events"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventName\": \"Winter Help 2025\",\n  \"currency\": \"PLN\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Financial report",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/events/report", "host": ["{{baseUrl}}"], "path": ["api","events","report"] }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Boxes",
+      "item": [
+        {
+          "name": "Register box",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/boxes", "host": ["{{baseUrl}}"], "path": ["api","boxes"] }
+          },
+          "response": []
+        },
+        {
+          "name": "List boxes",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/boxes", "host": ["{{baseUrl}}"], "path": ["api","boxes"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Assign box to event",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/boxes/:id/assign", "host": ["{{baseUrl}}"], "path": ["api","boxes",":id","assign"], "variable":[{"key":"id","value":"1"}] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventId\": 1\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add money",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/boxes/:id/add-money", "host": ["{{baseUrl}}"], "path": ["api","boxes",":id","add-money"], "variable":[{"key":"id","value":"1"}] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currency\": \"PLN\",\n  \"amount\": \"100.00\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Transfer money",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/boxes/:id/transfer", "host": ["{{baseUrl}}"], "path": ["api","boxes",":id","transfer"], "variable":[{"key":"id","value":"1"}] }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "token", "value": "" }
+  ]
+}
+
+

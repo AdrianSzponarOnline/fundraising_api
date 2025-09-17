@@ -1,59 +1,76 @@
 package com.TaskSii.model;
 import jakarta.persistence.*;
+import lombok.*;
+
 import java.math.BigDecimal;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
 // TODO check if amount of money can be transfered multiple times
 @Entity
 @Table(name = "collection_box")
+@Getter
+@Setter
+@AllArgsConstructor
+@RequiredArgsConstructor
+@Builder
 public class CollectionBox {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    @Builder.Default
     private boolean empty = true;
 
+    @Column(nullable = false)
+    private LocalDateTime created;
+
+    private LocalDateTime collectedAt;
+
+
     @ManyToOne
-    @JoinColumn(name = "event_id")
+    @JoinColumn(name = "event_id",
+                nullable = false,
+                foreignKey = @ForeignKey(name = "fk_collectionbox_event"))
     private FundraisingEvent fundraisingEvent;
 
-    @ElementCollection
-    @CollectionTable(name = "box_money", joinColumns = @JoinColumn(name = "box_id"))
-    @MapKeyColumn(name = "currency")
-    @Column(name = "amount")
-    private Map<Currency, BigDecimal> money;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "volunteer_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_collectionbox_volunteer"))
+    private Volunteer volunteer;
 
-    public CollectionBox(boolean empty, Map<Currency, BigDecimal> money) {
-        this.empty = empty;
-        this.money = money;
+    @OneToMany(mappedBy = "collectionBox", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<BoxMoney> transfers = new ArrayList<>();
+
+    @PrePersist
+    void prePersist() {
+        if (created == null) {
+            created = LocalDateTime.now();
+        }
     }
 
-    public CollectionBox() {
+    //helper methods
+    public BigDecimal getTotalAmount() {
+        return transfers.stream()
+                .filter(boxMoney -> !boxMoney.isTransferred())
+                .map(BoxMoney::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public Map<Currency, BigDecimal> getMoney() {
-        return money;
+    public void addTransfer(BoxMoney transfer) {
+        transfers.add(transfer);
+        transfer.setCollectionBox(this);
+        this.empty = false;
     }
-
-    public void setMoney(Map<Currency, BigDecimal> money) {
-        this.money = money;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public boolean isEmpty() {
-        return empty;
-    }
-
-    public void setEmpty(boolean empty) {
-        this.empty = empty;
+    public void removeTransfer(BoxMoney transfer) {
+        transfers.remove(transfer);
+        transfer.setCollectionBox(null);
+        if(transfers.isEmpty()) this.empty = true;
     }
 
     public FundraisingEvent getFundraisingEvent() {

@@ -27,9 +27,7 @@ public class FundraisingEventController {
 
     @PostMapping
     public ResponseEntity<FundraisingEventDTO> createFundraisingEvent(@Valid @RequestBody CreateFundraisingEventDTO fundraisingEventDTO) {
-        FundraisingEvent fundraisingEvent = fundraisingEventService.createFundraisingEvent(
-                fundraisingEventDTO.getEventName(),
-                fundraisingEventDTO.getCurrency());
+        FundraisingEvent fundraisingEvent = fundraisingEventService.createFundraisingEvent(fundraisingEventDTO);
         FundraisingEventDTO fundraisingEventDTOResponse = fundraisingEventMapper.toDTO(fundraisingEvent);
         return ResponseEntity.ok(fundraisingEventDTOResponse);
     }

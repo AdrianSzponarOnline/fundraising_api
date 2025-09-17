@@ -2,18 +2,19 @@ package com.TaskSii.service;
 
 import com.TaskSii.exception.InvalidOperationException;
 import com.TaskSii.exception.ResourceNotFoundException;
+import com.TaskSii.model.BoxMoney;
 import com.TaskSii.model.CollectionBox;
 import com.TaskSii.model.Currency;
 import com.TaskSii.model.FundraisingEvent;
 import com.TaskSii.repository.CollectionBoxRepository;
 import com.TaskSii.repository.FundraisingEventRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class CollectionBoxService {
@@ -39,6 +40,7 @@ public class CollectionBoxService {
     }
 
     public void deleteBox(Long boxId) {
+
         CollectionBox box = collectionBoxRepository.findById(boxId)
                 .orElseThrow(() -> new ResourceNotFoundException("Box with id " + boxId + " not found"));
         collectionBoxRepository.delete(box);
@@ -47,6 +49,7 @@ public class CollectionBoxService {
     public void assignBoxToEvent(Long boxId, Long eventId) {
         CollectionBox box = collectionBoxRepository.findById(boxId)
                 .orElseThrow(() -> new ResourceNotFoundException("Box with id " + boxId + " not found"));
+        System.out.println(box);
         if (box.getFundraisingEvent() != null) {
             throw new InvalidOperationException("Box is already assigned to a fundraising event");
         }
@@ -63,15 +66,24 @@ public class CollectionBoxService {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new InvalidOperationException("Amount must be greater than zero");
         }
+
         CollectionBox box = collectionBoxRepository.findById(boxId)
                 .orElseThrow(() -> new ResourceNotFoundException("Box with id " + boxId + " not found"));
-        box.getMoney().merge(currency, amount, BigDecimal::add);
 
-        box.setEmpty(false);
+        BoxMoney entry = new BoxMoney();
+        entry.setCollectionBox(box);
+        entry.setCurrency(currency);
+        entry.setAmount(amount);
+        entry.setTransferred(false);
+
+        box.addTransfer(entry); // metoda pomocnicza w CollectionBox, ustawia empty = false
+
         collectionBoxRepository.save(box);
     }
 
-    public void transferMoneyToEvent(Long boxId){
+
+    @Transactional
+    public void transferMoneyToEvent(Long boxId) {
         CollectionBox box = collectionBoxRepository.findById(boxId)
                 .orElseThrow(() -> new ResourceNotFoundException("Box with id " + boxId + " not found"));
 
@@ -80,25 +92,30 @@ public class CollectionBoxService {
             throw new ResourceNotFoundException("Box is not assigned to any event");
         }
 
+        List<BoxMoney> pending = box.getTransfers().stream()
+                .filter(transfer -> !transfer.isTransferred())
+                .toList();
+
+        if (pending.isEmpty()) {
+            throw new InvalidOperationException("No money to transfer from this box");
+        }
+
         BigDecimal total = BigDecimal.ZERO;
         Currency eventCurrency = event.getCurrency();
 
-        for(Map.Entry<Currency, BigDecimal> entry: box.getMoney().entrySet()) {
-            Currency currency = entry.getKey();
-            BigDecimal amt = entry.getValue();
-
-            BigDecimal converted = exchangeRateService.getRate(currency, eventCurrency)
-                    .multiply(amt)
+        for (BoxMoney entry : pending) {
+            BigDecimal converted = exchangeRateService.getRate(entry.getCurrency(), eventCurrency)
+                    .multiply(entry.getAmount())
                     .setScale(2, RoundingMode.HALF_UP);
 
             total = total.add(converted);
+
+            entry.setTransferred(true);
         }
+
         event.setAccountBalance(event.getAccountBalance().add(total));
-
-        box.getMoney().clear();
-        box.setEmpty(true);
-
-        fundraisingEventRepository.save(event);
         collectionBoxRepository.save(box);
+        fundraisingEventRepository.save(event);
     }
+
 }

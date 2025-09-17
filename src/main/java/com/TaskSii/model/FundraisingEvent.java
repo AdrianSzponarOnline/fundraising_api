@@ -1,6 +1,7 @@
 package com.TaskSii.model;
 
 import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -8,6 +9,11 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = "fundraising_event")
+@Getter
+@Setter
+@AllArgsConstructor
+@RequiredArgsConstructor
+@Builder
 public class FundraisingEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,9 +23,11 @@ public class FundraisingEvent {
     String name;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Currency currency;
 
     @Column(nullable = false)
+    @Builder.Default
     private BigDecimal accountBalance = BigDecimal.ZERO;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -28,52 +36,4 @@ public class FundraisingEvent {
                 foreignKey = @ForeignKey(name = "fk_fundraising_owner"))
     @OnDelete(action = OnDeleteAction.CASCADE)
     private OwnerProfile ownerProfile;
-
-    public FundraisingEvent() {
-    }
-
-    public FundraisingEvent(String name, Currency currency) {
-        this.name = name;
-        this.currency = currency;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Currency getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(Currency currency) {
-        this.currency = currency;
-    }
-
-    public BigDecimal getAccountBalance() {
-        return accountBalance;
-    }
-
-    public void setAccountBalance(BigDecimal accountBalance) {
-        this.accountBalance = accountBalance;
-    }
-
-    public OwnerProfile getOwnerProfile() {
-        return ownerProfile;
-    }
-
-    public void setOwnerProfile(OwnerProfile ownerProfile) {
-        this.ownerProfile = ownerProfile;
-    }
 }

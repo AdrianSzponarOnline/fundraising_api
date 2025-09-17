@@ -45,12 +45,12 @@ public class CollectionBoxController {
     }
     @PutMapping("{id}/assign")
     public ResponseEntity<Void> assignToEvent(@PathVariable Long id,@Valid @RequestBody AssignBoxDTO dto){
-        collectionBoxService.assignBoxToEvent(id, dto.getEventId());
+        collectionBoxService.assignBoxToEvent(id, dto.eventId());
         return ResponseEntity.ok().build();
     }
     @PostMapping("{id}/add-money")
     public ResponseEntity<Void> addMoney(@PathVariable Long id, @Valid @RequestBody AddMoneyDTO dto){
-        collectionBoxService.addMoney(id, dto.getCurrency(), dto.getAmount());
+        collectionBoxService.addMoney(id, dto.currency(), dto.amount());
         return ResponseEntity.ok().build();
     }
     @PostMapping("/{id}/transfer")

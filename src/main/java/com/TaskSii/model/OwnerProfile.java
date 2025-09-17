@@ -1,11 +1,17 @@
 package com.TaskSii.model;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "owner_profiles")
+@Getter
+@Setter
+@AllArgsConstructor
+@RequiredArgsConstructor
+@Builder
 public class OwnerProfile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,10 +43,16 @@ public class OwnerProfile {
     private String email;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Address> addresses = new ArrayList<Address>();
+    @Builder.Default
+    private List<Address> addresses = new ArrayList<>();
 
     @OneToMany(mappedBy = "ownerProfile",cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<FundraisingEvent> fundraisingEvents = new ArrayList<FundraisingEvent>();
+    @Builder.Default
+    private List<FundraisingEvent> fundraisingEvents = new ArrayList<>();
+
+    @OneToMany(mappedBy = "ownerProfile", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Volunteer> volunteers = new ArrayList<>();
 
 
 
@@ -61,5 +73,14 @@ public class OwnerProfile {
     public void removeFundraisingEvent(FundraisingEvent fundraisingEvent) {
         fundraisingEvents.remove(fundraisingEvent);
         fundraisingEvent.setOwnerProfile(null);
+    }
+    public void addVolunteer(Volunteer volunteer) {
+        volunteers.add(volunteer);
+        volunteer.setOwnerProfile(this);
+    }
+
+    public void removeVolunteer(Volunteer volunteer) {
+        volunteers.remove(volunteer);
+        volunteer.setOwnerProfile(null);
     }
 }

@@ -26,7 +26,7 @@ public class JWTService {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public List<String> extractRoles(String token) {
+    public ArrayList extractRoles(String token) {
         return extractClaim(token, claims ->
                 claims.get("roles", ArrayList.class));
     }

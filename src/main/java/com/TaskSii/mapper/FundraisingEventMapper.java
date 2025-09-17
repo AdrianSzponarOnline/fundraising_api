@@ -12,6 +12,8 @@ import org.mapstruct.Mapping;
 public interface FundraisingEventMapper {
 
     FundraisingEventDTO toDTO(FundraisingEvent event);
+    @Mapping(target = "ownerProfile", ignore = true)
+    @Mapping(target = "id", ignore = true)
     FundraisingEvent toEntity (FundraisingEventDTO dto);
 
     @Mapping(source = "name", target = "eventName")
