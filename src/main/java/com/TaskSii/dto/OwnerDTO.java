@@ -10,7 +10,8 @@ public record OwnerDTO(
         Long id,
         @Email(message = "Email should be valid") String email,
         Set<String> roles,
-        @Size(max = 100, message = "Organization name cannot exceed 100 characters") String organizatioName,
+        @Size(max = 100, message = "Organization name cannot exceed 100 characters")
+        String organizationName,
         @Size(max = 10) String nip,
         @Size(max = 14) String regon,
         @Size(max = 10) String krs,

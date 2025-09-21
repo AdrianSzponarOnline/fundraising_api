@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class FundraisingEventMapperEntityTest {
+public class FundraisingEventMapperTest {
 
     private final FundraisingEventMapper mapper = Mappers.getMapper(FundraisingEventMapper.class);
 

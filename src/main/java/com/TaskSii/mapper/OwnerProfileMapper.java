@@ -13,7 +13,6 @@ public interface OwnerProfileMapper {
 
     OwnerProfileMapper INSTANCE = Mappers.getMapper(OwnerProfileMapper.class);
 
-    @Mapping(target = "addresses", ignore = true)
     @Mapping(target = "fundraisingEvents", ignore = true)
     @Mapping(target = "volunteers", ignore = true)
     @Mapping(target = "user", ignore = true)
@@ -21,7 +20,7 @@ public interface OwnerProfileMapper {
     OwnerProfile fromRegisterOwnerDTO(RegisterOwnerDTO dto);
 
     @Mapping(target = "roles", ignore = true)
-    @Mapping(target = "organizatioName", source = "organizationName")
+    @Mapping(target = "organizationName", source = "organizationName")
     OwnerDTO toDto(OwnerProfile ownerProfile);
 
 }

@@ -27,7 +27,7 @@ public record AddressDTO(
         @Pattern(regexp = "^(?!.*[<>]).*$", message = "Postal code contains invalid characters")
         String postalCode
 ) {
-    // Optional: Create a constructor without ID for new addresses
+
     public AddressDTO(String streetName, String city, String state, String country, String postalCode) {
         this(null, streetName, city, state, country, postalCode);
     }
