@@ -66,10 +66,10 @@ public class ExchangeRateService {
     }
 
     public BigDecimal getRate(Currency from, Currency to) {
-        loadRates();
         if (from.equals(to)) {
             return BigDecimal.ONE;
         }
+        loadRates();
         if (!rates.containsKey(from) || !rates.containsKey(to)) {
             throw new InvalidOperationException("Unsupported currency " + from + " or " + to);
         }

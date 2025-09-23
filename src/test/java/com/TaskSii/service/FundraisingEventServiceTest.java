@@ -57,6 +57,24 @@ class FundraisingEventServiceTest {
     }
 
     @Test
+    void createFundraisingEvent_ownerNotFound_throws() {
+        User current = new User();
+        current.setEmail("owner@example.com");
+        current.setUser_id(99L);
+        when(userService.findUserByEmail("owner@example.com")).thenReturn(current);
+        when(ownerRepo.findById(99L)).thenReturn(Optional.empty());
+        assertThrows(RuntimeException.class, () -> service.createFundraisingEvent(new CreateFundraisingEventDTO("X", Currency.PLN)));
+        verify(eventRepo, never()).save(any());
+    }
+
+    @Test
+    void createFundraisingEvent_currentUserNotFound_throws() {
+        when(userService.findUserByEmail("owner@example.com")).thenThrow(new RuntimeException("not found"));
+        assertThrows(RuntimeException.class, () -> service.createFundraisingEvent(new CreateFundraisingEventDTO("X", Currency.PLN)));
+        verify(eventRepo, never()).save(any());
+    }
+
+    @Test
     void getAllEvents_returnsList() {
         when(eventRepo.findAll()).thenReturn(List.of(new FundraisingEvent(), new FundraisingEvent()));
         assertEquals(2, service.getAllEvents().size());

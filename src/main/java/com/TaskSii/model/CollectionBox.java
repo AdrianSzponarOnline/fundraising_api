@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-// TODO check if amount of money can be transfered multiple times
 @Entity
 @Table(name = "collection_box")
 @Getter
@@ -31,10 +30,11 @@ public class CollectionBox {
     private LocalDateTime collectedAt;
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id",
                 nullable = false,
-                foreignKey = @ForeignKey(name = "fk_collectionbox_event"))
+                foreignKey = @ForeignKey(name = "fk_collectionbox_event"
+                ))
     private FundraisingEvent fundraisingEvent;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -10,6 +10,7 @@ import com.TaskSii.repository.CollectionBoxRepository;
 import com.TaskSii.repository.FundraisingEventRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -30,6 +31,7 @@ public class CollectionBoxService {
         this.exchangeRateService = exchangeRateService;
     }
 
+    @Transactional
     public CollectionBox registerBox() {
         CollectionBox box = new CollectionBox();
         return collectionBoxRepository.save(box);
@@ -46,9 +48,9 @@ public class CollectionBoxService {
         collectionBoxRepository.delete(box);
     }
 
+    @Transactional
     public void assignBoxToEvent(Long boxId, Long eventId) {
-        CollectionBox box = collectionBoxRepository.findById(boxId)
-                .orElseThrow(() -> new ResourceNotFoundException("Box with id " + boxId + " not found"));
+        CollectionBox box = getBoxById(boxId);
         System.out.println(box);
         if (box.getFundraisingEvent() != null) {
             throw new InvalidOperationException("Box is already assigned to a fundraising event");
@@ -62,6 +64,7 @@ public class CollectionBoxService {
         collectionBoxRepository.save(box);
     }
 
+    @Transactional
     public void addMoney(Long boxId, Currency currency, BigDecimal amount) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new InvalidOperationException("Amount must be greater than zero");
@@ -79,6 +82,11 @@ public class CollectionBoxService {
         box.addTransfer(entry); // metoda pomocnicza w CollectionBox, ustawia empty = false
 
         collectionBoxRepository.save(box);
+    }
+
+    CollectionBox getBoxById(@NonNull Long boxId) {
+        CollectionBox box = collectionBoxRepository.findById(boxId).orElseThrow(() -> new ResourceNotFoundException("Box with id " + boxId + " not found"));
+        return box;
     }
 
 

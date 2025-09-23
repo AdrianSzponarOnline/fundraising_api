@@ -52,7 +52,7 @@ public class CollectionBoxController {
         return ResponseEntity.ok().build();
     }
     @PostMapping("{id}/add-money")
-    @PreAuthorize("hasRole('OWNER')")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Void> addMoney(@PathVariable Long id, @Valid @RequestBody AddMoneyDTO dto){
         collectionBoxService.addMoney(id, dto.currency(), dto.amount());
         return ResponseEntity.ok().build();

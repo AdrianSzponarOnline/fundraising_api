@@ -80,6 +80,74 @@ class CollectionBoxServiceTest {
         when(boxRepo.findById(1L)).thenReturn(Optional.of(box));
         assertThrows(InvalidOperationException.class, () -> service.addMoney(1L, Currency.PLN, new BigDecimal("0.00")));
     }
+
+    @Test
+    void assignBoxToEvent_eventNotFound() {
+        CollectionBox box = new CollectionBox();
+        box.setEmpty(true);
+        when(boxRepo.findById(1L)).thenReturn(Optional.of(box));
+        when(eventRepo.findById(2L)).thenReturn(Optional.empty());
+        assertThrows(ResourceNotFoundException.class, () -> service.assignBoxToEvent(1L, 2L));
+        verify(boxRepo, never()).save(any());
+    }
+
+    @Test
+    void addMoney_boxNotFound() {
+        when(boxRepo.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(ResourceNotFoundException.class, () -> service.addMoney(1L, Currency.PLN, new BigDecimal("10.00")));
+        verify(boxRepo, never()).save(any());
+    }
+
+    @Test
+    void transferMoneyToEvent_success_withConversion() {
+        // Box with two pending transfers in different currencies
+        CollectionBox box = new CollectionBox();
+        FundraisingEvent event = FundraisingEvent.builder().currency(Currency.PLN).accountBalance(new BigDecimal("100.00")).build();
+        box.setFundraisingEvent(event);
+
+        BoxMoney m1 = new BoxMoney();
+        m1.setCurrency(Currency.PLN);
+        m1.setAmount(new BigDecimal("10.00"));
+        m1.setTransferred(false);
+        m1.setCollectionBox(box);
+
+        BoxMoney m2 = new BoxMoney();
+        m2.setCurrency(Currency.USD);
+        m2.setAmount(new BigDecimal("5.00"));
+        m2.setTransferred(false);
+        m2.setCollectionBox(box);
+
+        box.addTransfer(m1);
+        box.addTransfer(m2);
+
+        when(boxRepo.findById(1L)).thenReturn(Optional.of(box));
+        when(rateService.getRate(Currency.PLN, Currency.PLN)).thenReturn(new BigDecimal("1.00"));
+        when(rateService.getRate(Currency.USD, Currency.PLN)).thenReturn(new BigDecimal("4.00"));
+
+        service.transferMoneyToEvent(1L);
+
+        // 10 PLN + (5 USD * 4 PLN) = 30 PLN, added to 100 = 130
+        assertEquals(0, event.getAccountBalance().compareTo(new BigDecimal("130.00")));
+        assertTrue(box.getTransfers().stream().allMatch(BoxMoney::isTransferred));
+        verify(boxRepo).save(box);
+        verify(eventRepo).save(event);
+    }
+
+    @Test
+    void transferMoneyToEvent_boxNotAssigned_throws() {
+        CollectionBox box = new CollectionBox();
+        when(boxRepo.findById(1L)).thenReturn(Optional.of(box));
+        assertThrows(ResourceNotFoundException.class, () -> service.transferMoneyToEvent(1L));
+    }
+
+    @Test
+    void transferMoneyToEvent_noPendingTransfers_throws() {
+        CollectionBox box = new CollectionBox();
+        FundraisingEvent event = FundraisingEvent.builder().currency(Currency.PLN).accountBalance(new BigDecimal("0.00")).build();
+        box.setFundraisingEvent(event);
+        when(boxRepo.findById(1L)).thenReturn(Optional.of(box));
+        assertThrows(InvalidOperationException.class, () -> service.transferMoneyToEvent(1L));
+    }
 }
 
 

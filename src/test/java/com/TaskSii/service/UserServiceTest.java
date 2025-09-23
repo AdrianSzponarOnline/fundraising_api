@@ -14,7 +14,6 @@ import com.TaskSii.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -119,6 +118,21 @@ class UserServiceTest {
         var ownerDto = userService.createOwner(dto);
         assertNotNull(ownerDto);
         verify(ownerProfileRepository).save(mapped);
+    }
+
+    @Test
+    void createOwner_duplicateEmail_throws() {
+        RegisterOwnerDTO dto = new RegisterOwnerDTO("owner@example.com", "Password1", "OrgName", "1234567890", "123456789", "1234567890", "+48123456789", java.util.List.of());
+        when(userRepository.findByEmail(dto.email())).thenReturn(Optional.of(new User()));
+        assertThrows(EmailAlreadyExistsException.class, () -> userService.createOwner(dto));
+    }
+
+    @Test
+    void createOwner_missingRole_throws() {
+        RegisterOwnerDTO dto = new RegisterOwnerDTO("owner@example.com", "Password1", "OrgName", "1234567890", "123456789", "1234567890", "+48123456789", java.util.List.of());
+        when(userRepository.findByEmail(dto.email())).thenReturn(Optional.empty());
+        when(roleRepository.findByRole(ERole.ROLE_ADMIN)).thenReturn(Optional.empty());
+        assertThrows(RoleNotFountException.class, () -> userService.createOwner(dto));
     }
 }
 

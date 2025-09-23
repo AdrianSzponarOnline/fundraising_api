@@ -39,6 +39,5 @@ public class FundraisingEventController {
                 .map(fundraisingEventMapper::toFinancialReport)
                 .toList();
         return ResponseEntity.ok(report);
-
     }
 }
