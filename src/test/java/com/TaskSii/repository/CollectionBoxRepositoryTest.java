@@ -70,7 +70,6 @@ public class CollectionBoxRepositoryTest {
         volunteer.setOwnerProfile(owner);
         entityManager.persist(volunteer);
 
-        // dopiero teraz możesz wstawić collection box
         CollectionBox box = new CollectionBox();
         box.setFundraisingEvent(event);
         box.setVolunteer(volunteer);
@@ -81,7 +80,6 @@ public class CollectionBoxRepositoryTest {
         entityManager.flush();
         entityManager.clear();
 
-        // test działania
         Optional<CollectionBox> found = collectionBoxRepository.findById(box.getId());
 
         assertTrue(found.isPresent());

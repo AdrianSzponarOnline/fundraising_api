@@ -23,7 +23,6 @@ public class Volunteer {
     @JoinColumn(name = "user_id")
     private User user;
 
-
     @Column(nullable = false, length = 50)
     private String firstName;
 

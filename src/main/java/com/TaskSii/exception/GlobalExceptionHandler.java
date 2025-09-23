@@ -61,6 +61,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleInsufficientAuthenticationException(InsufficientAuthenticationException e) {
         return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Authentication Required", "Full authentication is required to access this resource");
     }
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<Object> handleEmailAlreadyExistsException(EmailAlreadyExistsException e) {
+        return buildErrorResponse(HttpStatus.CONFLICT, "Email Already Exists", e.getMessage());
+    }
 
 
     private ResponseEntity<Object> buildErrorResponse(HttpStatus status, String error, String message) {
