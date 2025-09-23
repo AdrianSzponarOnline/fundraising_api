@@ -27,7 +27,7 @@ public class CollectionBoxController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ROLE_OWNER')")
+    @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<CollectionBoxDTO> registerBox() {
         CollectionBox box = collectionBoxService.registerBox();
         CollectionBoxDTO dto = collectionBoxMapper.toDTO(box);
@@ -40,21 +40,25 @@ public class CollectionBoxController {
         ));
     }
     @DeleteMapping ("/{id}")
+    @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<Void> deleteBox(@PathVariable Long id){
         collectionBoxService.deleteBox(id);
         return ResponseEntity.noContent().build();
     }
     @PutMapping("{id}/assign")
+    @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<Void> assignToEvent(@PathVariable Long id,@Valid @RequestBody AssignBoxDTO dto){
         collectionBoxService.assignBoxToEvent(id, dto.eventId());
         return ResponseEntity.ok().build();
     }
     @PostMapping("{id}/add-money")
+    @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<Void> addMoney(@PathVariable Long id, @Valid @RequestBody AddMoneyDTO dto){
         collectionBoxService.addMoney(id, dto.currency(), dto.amount());
         return ResponseEntity.ok().build();
     }
     @PostMapping("/{id}/transfer")
+    @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<Void> transfer(@PathVariable Long id) {
         collectionBoxService.transferMoneyToEvent(id);
         return ResponseEntity.ok().build();

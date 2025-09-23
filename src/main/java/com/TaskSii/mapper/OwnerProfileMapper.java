@@ -11,8 +11,6 @@ import org.mapstruct.factory.Mappers;
 @Mapper(componentModel = "spring")
 public interface OwnerProfileMapper {
 
-    OwnerProfileMapper INSTANCE = Mappers.getMapper(OwnerProfileMapper.class);
-
     @Mapping(target = "fundraisingEvents", ignore = true)
     @Mapping(target = "volunteers", ignore = true)
     @Mapping(target = "user", ignore = true)
