@@ -1,7 +1,8 @@
 package com.TaskSii.controller;
 
-import com.TaskSii.dto.AddMoneyDTO;
-import com.TaskSii.dto.AssignBoxDTO;
+import com.TaskSii.dto.AddMoneyRequestDTO;
+import com.TaskSii.dto.AssignBoxRequestDTO;
+import com.TaskSii.dto.TransferRequestDTO;
 import com.TaskSii.dto.CollectionBoxDTO;
 import com.TaskSii.mapper.CollectionBoxMapper;
 import com.TaskSii.model.CollectionBox;
@@ -39,28 +40,28 @@ public class CollectionBoxController {
                 collectionBoxService.getAllBoxes()
         ));
     }
-    @DeleteMapping ("/{id}")
+    @DeleteMapping
     @PreAuthorize("hasRole('OWNER')")
-    public ResponseEntity<Void> deleteBox(@PathVariable Long id){
+    public ResponseEntity<Void> deleteBox(@RequestParam Long id){
         collectionBoxService.deleteBox(id);
         return ResponseEntity.noContent().build();
     }
-    @PutMapping("{id}/assign")
+    @PutMapping("/assign")
     @PreAuthorize("hasRole('OWNER')")
-    public ResponseEntity<Void> assignToEvent(@PathVariable Long id,@Valid @RequestBody AssignBoxDTO dto){
-        collectionBoxService.assignBoxToEvent(id, dto.eventId());
+    public ResponseEntity<Void> assignToEvent(@Valid @RequestBody AssignBoxRequestDTO dto){
+        collectionBoxService.assignBoxToEvent(dto.boxId(), dto.eventId());
         return ResponseEntity.ok().build();
     }
-    @PostMapping("{id}/add-money")
+    @PostMapping("/add-money")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Void> addMoney(@PathVariable Long id, @Valid @RequestBody AddMoneyDTO dto){
-        collectionBoxService.addMoney(id, dto.currency(), dto.amount());
+    public ResponseEntity<Void> addMoney(@Valid @RequestBody AddMoneyRequestDTO dto){
+        collectionBoxService.addMoney(dto.boxId(), dto.currency(), dto.amount());
         return ResponseEntity.ok().build();
     }
-    @PostMapping("/{id}/transfer")
+    @PostMapping("/transfer")
     @PreAuthorize("hasRole('OWNER')")
-    public ResponseEntity<Void> transfer(@PathVariable Long id) {
-        collectionBoxService.transferMoneyToEvent(id);
+    public ResponseEntity<Void> transfer(@Valid @RequestBody TransferRequestDTO dto) {
+        collectionBoxService.transferMoneyToEvent(dto.boxId());
         return ResponseEntity.ok().build();
     }
 }
