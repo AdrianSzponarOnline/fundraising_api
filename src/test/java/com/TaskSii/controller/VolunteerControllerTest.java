@@ -15,8 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -32,11 +31,11 @@ class VolunteerControllerTest {
 
     @Test
     @WithMockUser(roles = {"OWNER"})
-    void listByOwner_returnsList() throws Exception {
+    void listByCurrentOwner_returnsList() throws Exception {
         VolunteerResponseDTO dto = new VolunteerResponseDTO(1L, "A", "B", "e", "p", 5L, List.of());
-        Mockito.when(volunteerService.listByOwner(5L)).thenReturn(List.of(dto));
+        Mockito.when(volunteerService.listByOwner(anyLong())).thenReturn(List.of(dto));
 
-        mockMvc.perform(get("/api/volunteers").param("ownerId", "5"))
+        mockMvc.perform(get("/api/volunteers"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1L))
                 .andExpect(jsonPath("$[0].ownerProfileId").value(5L));
@@ -46,7 +45,7 @@ class VolunteerControllerTest {
     @WithMockUser(roles = {"OWNER"})
     void getById_returnsVolunteer() throws Exception {
         VolunteerResponseDTO dto = new VolunteerResponseDTO(2L, "A", "B", "e", "p", 5L, List.of());
-        Mockito.when(volunteerService.getById(2L)).thenReturn(dto);
+        Mockito.when(volunteerService.getByIdForOwner(eq(2L), anyLong())).thenReturn(dto);
 
         mockMvc.perform(get("/api/volunteers/2"))
                 .andExpect(status().isOk())
@@ -58,7 +57,7 @@ class VolunteerControllerTest {
     @WithMockUser(roles = {"OWNER"})
     void create_createsVolunteer() throws Exception {
         VolunteerResponseDTO dto = new VolunteerResponseDTO(10L, "A", "B", "e", "+1", 5L, List.of());
-        Mockito.when(volunteerService.create(any(VolunteerCreateDTO.class))).thenReturn(dto);
+        Mockito.when(volunteerService.create(any(VolunteerCreateDTO.class), anyLong())).thenReturn(dto);
 
         String body = "{\"firstName\":\"A\",\"lastName\":\"B\",\"email\":\"e\",\"phoneNumber\":\"+1\",\"password\":\"pass\",\"ownerProfileId\":5}";
         mockMvc.perform(post("/api/volunteers")
@@ -73,7 +72,7 @@ class VolunteerControllerTest {
     @WithMockUser(roles = {"OWNER"})
     void update_updatesVolunteer() throws Exception {
         VolunteerResponseDTO dto = new VolunteerResponseDTO(10L, "X", "B", "e", "+1", 5L, List.of());
-        Mockito.when(volunteerService.update(eq(10L), any(VolunteerUpdateDTO.class))).thenReturn(dto);
+        Mockito.when(volunteerService.updateForOwner(eq(10L), any(VolunteerUpdateDTO.class), anyLong())).thenReturn(dto);
 
         String body = "{\"firstName\":\"X\"}";
         mockMvc.perform(put("/api/volunteers/10")
@@ -86,7 +85,8 @@ class VolunteerControllerTest {
     @Test
     @WithMockUser(roles = {"OWNER"})
     void delete_deletesVolunteer() throws Exception {
-        mockMvc.perform(delete("/api/volunteers/10").param("ownerId", "5"))
+        Mockito.doNothing().when(volunteerService).deleteForOwner(eq(10L), anyLong());
+        mockMvc.perform(delete("/api/volunteers/10"))
                 .andExpect(status().isNoContent());
     }
 }

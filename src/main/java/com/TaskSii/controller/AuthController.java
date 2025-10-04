@@ -1,6 +1,8 @@
 package com.TaskSii.controller;
 
 import com.TaskSii.dto.*;
+import com.TaskSii.dto.auth.AuthRequestDTO;
+import com.TaskSii.dto.auth.AuthResponseDTO;
 import com.TaskSii.service.AuthService;
 import com.TaskSii.service.UserService;
 import jakarta.validation.Valid;

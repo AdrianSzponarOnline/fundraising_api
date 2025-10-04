@@ -1,7 +1,7 @@
 package com.TaskSii.service;
 
-import com.TaskSii.dto.AuthRequestDTO;
-import com.TaskSii.dto.AuthResponseDTO;
+import com.TaskSii.dto.auth.AuthRequestDTO;
+import com.TaskSii.dto.auth.AuthResponseDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;

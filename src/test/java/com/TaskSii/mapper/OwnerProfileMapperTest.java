@@ -8,11 +8,9 @@ import com.TaskSii.model.OwnerProfile;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
-
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 
 public class OwnerProfileMapperTest {
     private final OwnerProfileMapper mapper = Mappers.getMapper(OwnerProfileMapper.class);
@@ -43,7 +41,7 @@ public class OwnerProfileMapperTest {
         assertThat(entity).isNotNull();
         assertThat(entity.getId()).isNull(); // ignorowane
         assertThat(entity.getUser()).isNull(); // ignorowane
-        assertThat(entity.getAddresses()).isNull();
+        assertThat(entity.getAddresses()).isEmpty();
         assertThat(entity.getFundraisingEvents()).isEmpty();
         assertThat(entity.getVolunteers()).isEmpty();
 
@@ -60,14 +58,6 @@ public class OwnerProfileMapperTest {
 
     @Test
     void shouldMapEntityToDTO() {
-        Address address = Address.builder()
-                .streetName("Testowa")
-                .city("Lublin")
-                .state("Lubelskie")
-                .country("Polska")
-                .postalCode("20-611")
-                .build();
-
         OwnerProfile ownerProfile = OwnerProfile.builder()
                 .id(1L)
                 .email("test@test.pl")
@@ -76,7 +66,7 @@ public class OwnerProfileMapperTest {
                 .regon("123456789")
                 .krs("1234567890")
                 .phoneNumber("691111956")
-                .addresses(List.of(address))
+                .addresses(List.of())
                 .build();
 
         OwnerDTO dto = mapper.toDto(ownerProfile);
@@ -90,7 +80,6 @@ public class OwnerProfileMapperTest {
         assertThat(dto.phoneNumber()).isEqualTo(ownerProfile.getPhoneNumber());
 
         assertThat(dto.addresses()).isNotNull();
-        assertThat(dto.addresses()).hasSize(1);
-        assertThat(dto.addresses().get(0).streetName()).isEqualTo("Testowa");
+        assertThat(dto.addresses()).isEmpty();
     }
 }

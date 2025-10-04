@@ -1,5 +1,9 @@
 package com.TaskSii.dto;
 
+import com.TaskSii.dto.auth.AuthRequestDTO;
+import com.TaskSii.dto.collectionbox.AddMoneyDTO;
+import com.TaskSii.dto.collectionbox.AssignBoxDTO;
+import com.TaskSii.dto.collectionbox.AssignVolunteerRequestDTO;
 import com.TaskSii.model.Currency;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -219,6 +223,21 @@ class DTOValidationTest {
         assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("name")));
         assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("currency")));
         assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("accountBalance")));
+    }
+
+    @Test
+    void assignVolunteerRequestDTO_valid() {
+        AssignVolunteerRequestDTO dto = new AssignVolunteerRequestDTO(1L, 1L);
+        Set<ConstraintViolation<AssignVolunteerRequestDTO>> violations = validator.validate(dto);
+        assertTrue(violations.isEmpty());
+    }
+
+    @Test
+    void assignVolunteerRequestDTO_invalid() {
+        AssignVolunteerRequestDTO dto = new AssignVolunteerRequestDTO(-1L, null);
+        Set<ConstraintViolation<AssignVolunteerRequestDTO>> violations = validator.validate(dto);
+        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("volunteerId")));
+        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("boxId")));
     }
 }
 

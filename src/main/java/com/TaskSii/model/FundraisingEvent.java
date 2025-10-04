@@ -6,6 +6,8 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "fundraising_event")
@@ -36,4 +38,18 @@ public class FundraisingEvent {
                 foreignKey = @ForeignKey(name = "fk_fundraising_owner"))
     @OnDelete(action = OnDeleteAction.CASCADE)
     private OwnerProfile ownerProfile;
+
+    @OneToMany(fetch = FetchType.LAZY ,mappedBy = "fundraisingEvent", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<CollectionBox> collectionBoxes = new ArrayList<>();
+
+    public void addCollectionBox(CollectionBox box) {
+        collectionBoxes.add(box);
+        box.setFundraisingEvent(this);
+    }
+
+    public void removeCollectionBox(CollectionBox box) {
+        collectionBoxes.remove(box);
+        box.setFundraisingEvent(null);
+    }
 }

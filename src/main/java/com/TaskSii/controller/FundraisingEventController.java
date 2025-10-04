@@ -5,10 +5,13 @@ import com.TaskSii.dto.FinancialReportDTO;
 import com.TaskSii.dto.FundraisingEventDTO;
 import com.TaskSii.mapper.FundraisingEventMapper;
 import com.TaskSii.model.FundraisingEvent;
+import com.TaskSii.model.User;
 import com.TaskSii.service.FundraisingEventService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,15 +29,17 @@ public class FundraisingEventController {
     }
 
     @PostMapping
-    public ResponseEntity<FundraisingEventDTO> createFundraisingEvent(@Valid @RequestBody CreateFundraisingEventDTO fundraisingEventDTO) {
-        FundraisingEvent fundraisingEvent = fundraisingEventService.createFundraisingEvent(fundraisingEventDTO);
+    @PreAuthorize("hasRole('OWNER')")
+    public ResponseEntity<FundraisingEventDTO> createFundraisingEvent(@Valid @RequestBody CreateFundraisingEventDTO fundraisingEventDTO, @AuthenticationPrincipal User currentUser) {
+        FundraisingEvent fundraisingEvent = fundraisingEventService.createFundraisingEvent(fundraisingEventDTO, currentUser.getUser_id());
         FundraisingEventDTO fundraisingEventDTOResponse = fundraisingEventMapper.toDTO(fundraisingEvent);
         return ResponseEntity.ok(fundraisingEventDTOResponse);
     }
 
     @GetMapping("/report")
-    public ResponseEntity<List<FinancialReportDTO>> getFundraisingEventReport() {
-        List<FundraisingEvent> events = fundraisingEventService.getAllEvents();
+    @PreAuthorize("hasRole('OWNER')")
+    public ResponseEntity<List<FinancialReportDTO>> getFundraisingEventReport(@AuthenticationPrincipal User currentUser) {
+        List<FundraisingEvent> events = fundraisingEventService.getAllEventsForOwner(currentUser.getUser_id());
         List<FinancialReportDTO> report = events.stream()
                 .map(fundraisingEventMapper::toFinancialReport)
                 .toList();

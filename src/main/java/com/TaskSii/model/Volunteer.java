@@ -44,8 +44,9 @@ public class Volunteer {
                 foreignKey = @ForeignKey(name = "fk_volunteer_owner"))
     private OwnerProfile ownerProfile;
 
-    @OneToMany(mappedBy = "volunteer", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<CollectionBox> collectionBoxes = new ArrayList<>();
+    @OneToOne(mappedBy = "volunteer", cascade = CascadeType.ALL, orphanRemoval = true)
+    CollectionBox collectionBox;
+
+
 
 }

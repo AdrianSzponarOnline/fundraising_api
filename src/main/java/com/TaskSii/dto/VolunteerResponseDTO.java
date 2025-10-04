@@ -1,5 +1,7 @@
 package com.TaskSii.dto;
 
+import com.TaskSii.dto.collectionbox.CollectionBoxDTO;
+
 import java.util.List;
 
 public record VolunteerResponseDTO(

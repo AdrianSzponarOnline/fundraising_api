@@ -1,17 +1,14 @@
 package com.TaskSii.service;
 
 import com.TaskSii.dto.CreateFundraisingEventDTO;
+import com.TaskSii.exception.ResourceNotFoundException;
 import com.TaskSii.model.Currency;
 import com.TaskSii.model.FundraisingEvent;
 import com.TaskSii.model.OwnerProfile;
-import com.TaskSii.model.User;
 import com.TaskSii.repository.FundraisingEventRepository;
 import com.TaskSii.repository.OwnerProfileRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,36 +18,23 @@ import static org.mockito.Mockito.*;
 
 class FundraisingEventServiceTest {
     private FundraisingEventRepository eventRepo;
-    private UserService userService;
-    private OwnerProfileRepository ownerRepo;
+    private OwnerProfileRepository ownerProfileRepository;
     private FundraisingEventService service;
 
     @BeforeEach
     void setup() {
         eventRepo = mock(FundraisingEventRepository.class);
-        userService = mock(UserService.class);
-        ownerRepo = mock(OwnerProfileRepository.class);
-        service = new FundraisingEventService(eventRepo, userService, ownerRepo);
-
-        // mock security
-        Authentication auth = mock(Authentication.class);
-        when(auth.getName()).thenReturn("owner@example.com");
-        SecurityContext context = mock(SecurityContext.class);
-        when(context.getAuthentication()).thenReturn(auth);
-        SecurityContextHolder.setContext(context);
+        ownerProfileRepository = mock(OwnerProfileRepository.class);
+        service = new FundraisingEventService(eventRepo, ownerProfileRepository);
     }
 
     @Test
     void createFundraisingEvent_success() {
-        User current = new User();
-        current.setEmail("owner@example.com");
-        current.setUser_id(1L);
-        when(userService.findUserByEmail("owner@example.com")).thenReturn(current);
         OwnerProfile owner = new OwnerProfile();
-        when(ownerRepo.findById(1L)).thenReturn(Optional.of(owner));
+        when(ownerProfileRepository.findByUserId(1L)).thenReturn(Optional.of(owner));
         when(eventRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        FundraisingEvent created = service.createFundraisingEvent(new CreateFundraisingEventDTO("Test", Currency.PLN));
+        FundraisingEvent created = service.createFundraisingEvent(new CreateFundraisingEventDTO("Test", Currency.PLN), 1L);
         assertEquals("Test", created.getName());
         assertEquals(Currency.PLN, created.getCurrency());
         assertEquals(owner, created.getOwnerProfile());
@@ -58,19 +42,8 @@ class FundraisingEventServiceTest {
 
     @Test
     void createFundraisingEvent_ownerNotFound_throws() {
-        User current = new User();
-        current.setEmail("owner@example.com");
-        current.setUser_id(99L);
-        when(userService.findUserByEmail("owner@example.com")).thenReturn(current);
-        when(ownerRepo.findById(99L)).thenReturn(Optional.empty());
-        assertThrows(RuntimeException.class, () -> service.createFundraisingEvent(new CreateFundraisingEventDTO("X", Currency.PLN)));
-        verify(eventRepo, never()).save(any());
-    }
-
-    @Test
-    void createFundraisingEvent_currentUserNotFound_throws() {
-        when(userService.findUserByEmail("owner@example.com")).thenThrow(new RuntimeException("not found"));
-        assertThrows(RuntimeException.class, () -> service.createFundraisingEvent(new CreateFundraisingEventDTO("X", Currency.PLN)));
+        when(ownerProfileRepository.findByUserId(1L)).thenReturn(Optional.empty());
+        assertThrows(ResourceNotFoundException.class, () -> service.createFundraisingEvent(new CreateFundraisingEventDTO("X", Currency.PLN), 1L));
         verify(eventRepo, never()).save(any());
     }
 

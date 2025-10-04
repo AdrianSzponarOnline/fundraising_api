@@ -1,6 +1,6 @@
 package com.TaskSii.mapper;
 
-import com.TaskSii.dto.CollectionBoxDTO;
+import com.TaskSii.dto.collectionbox.CollectionBoxDTO;
 import com.TaskSii.model.CollectionBox;
 import com.TaskSii.model.FundraisingEvent;
 import com.TaskSii.model.Volunteer;

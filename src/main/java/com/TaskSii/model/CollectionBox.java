@@ -37,9 +37,9 @@ public class CollectionBox {
                 ))
     private FundraisingEvent fundraisingEvent;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "volunteer_id",
-            nullable = false,
+            nullable = true,
             foreignKey = @ForeignKey(name = "fk_collectionbox_volunteer"))
     private Volunteer volunteer;
 
@@ -54,7 +54,6 @@ public class CollectionBox {
         }
     }
 
-    //helper methods
     public BigDecimal getTotalAmount() {
         return transfers.stream()
                 .filter(boxMoney -> !boxMoney.isTransferred())

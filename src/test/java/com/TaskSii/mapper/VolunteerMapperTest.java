@@ -4,7 +4,6 @@ import com.TaskSii.dto.VolunteerCreateDTO;
 import com.TaskSii.dto.VolunteerUpdateDTO;
 import com.TaskSii.model.Volunteer;
 import org.junit.jupiter.api.Test;
-import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +34,7 @@ public class VolunteerMapperTest {
 
         assertThat(entity.getUser()).isNull();
         assertThat(entity.getOwnerProfile()).isNull();
-        assertThat(entity.getCollectionBoxes()).isEmpty();
+        assertThat(entity.getCollectionBox()).isNull();
     }
 
     @Test

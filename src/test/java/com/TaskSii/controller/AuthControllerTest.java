@@ -1,8 +1,8 @@
 package com.TaskSii.controller;
 
 import com.TaskSii.config.JwtAuthFilter;
-import com.TaskSii.dto.AuthRequestDTO;
-import com.TaskSii.dto.AuthResponseDTO;
+import com.TaskSii.dto.auth.AuthRequestDTO;
+import com.TaskSii.dto.auth.AuthResponseDTO;
 import com.TaskSii.dto.RegisterRequestDTO;
 import com.TaskSii.dto.UserDto;
 import com.TaskSii.service.AuthService;

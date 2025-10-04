@@ -12,4 +12,7 @@ import java.util.Optional;
 public interface CollectionBoxRepository extends JpaRepository<CollectionBox, Long> {
     Optional<CollectionBox> findById(@NonNull Long id);
     List<CollectionBox> findByVolunteerId(Long volunteerId);
+    Optional<CollectionBox> findByIdAndFundraisingEventOwnerProfileId(Long boxId, Long ownerProfileId);
+    List<CollectionBox> findAllByFundraisingEventOwnerProfileId(Long ownerProfileId);
+    boolean existsByIdAndFundraisingEventOwnerProfileId(Long boxId, Long ownerProfileId);
 }

@@ -1,4 +1,4 @@
-package com.TaskSii.dto;
+package com.TaskSii.dto.auth;
 
 import java.util.List;
 

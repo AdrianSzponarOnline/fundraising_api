@@ -22,22 +22,28 @@ import static org.mockito.Mockito.*;
 class VolunteerServiceTest {
 
     private VolunteerRepository repo;
-    private OwnerProfileRepository ownerRepo;
     private VolunteerMapper mapper;
     private PasswordEncoder encoder;
+    private CollectionBoxService collectionBoxService;
+    private OwnerProfileRepository ownerProfileRepository;
     private VolunteerService service;
 
     @BeforeEach
     void setup() {
         repo = mock(VolunteerRepository.class);
-        ownerRepo = mock(OwnerProfileRepository.class);
         mapper = mock(VolunteerMapper.class);
         encoder = mock(PasswordEncoder.class);
-        service = new VolunteerService(repo, ownerRepo, mapper, encoder);
+        collectionBoxService = mock(CollectionBoxService.class);
+        ownerProfileRepository = mock(OwnerProfileRepository.class);
+        service = new VolunteerService(repo, mapper, encoder, collectionBoxService, ownerProfileRepository);
     }
 
     @Test
     void listByOwner_mapsResults() {
+        OwnerProfile owner = new OwnerProfile();
+        owner.setId(1L);
+        when(ownerProfileRepository.findByUserId(1L)).thenReturn(Optional.of(owner));
+        
         Volunteer v = new Volunteer();
         when(repo.findAllByOwnerProfileId(1L)).thenReturn(List.of(v));
         VolunteerResponseDTO dto = new VolunteerResponseDTO(1L, "A", "B", "e", "p", 1L, List.of());
@@ -66,7 +72,8 @@ class VolunteerServiceTest {
     void create_success_encodesPassword_andSetsOwner() {
         VolunteerCreateDTO dto = new VolunteerCreateDTO("A", "B", "e", "+1", "pass", 5L);
         OwnerProfile owner = new OwnerProfile();
-        when(ownerRepo.findById(5L)).thenReturn(Optional.of(owner));
+        owner.setId(5L);
+        when(ownerProfileRepository.findByUserId(1L)).thenReturn(Optional.of(owner));
 
         Volunteer entity = new Volunteer();
         entity.setPassword("pass");
@@ -77,7 +84,7 @@ class VolunteerServiceTest {
         VolunteerResponseDTO response = new VolunteerResponseDTO(10L, "A", "B", "e", "+1", 5L, List.of());
         when(mapper.toDto(saved)).thenReturn(response);
 
-        VolunteerResponseDTO res = service.create(dto);
+        VolunteerResponseDTO res = service.create(dto, 1L);
         assertEquals("ENC", entity.getPassword());
         assertEquals(5L, res.ownerProfileId());
         assertEquals(owner, entity.getOwnerProfile());
@@ -86,44 +93,58 @@ class VolunteerServiceTest {
     @Test
     void create_ownerNotFound_throws() {
         VolunteerCreateDTO dto = new VolunteerCreateDTO("A", "B", "e", "+1", "pass", 5L);
-        when(ownerRepo.findById(5L)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> service.create(dto));
+        when(ownerProfileRepository.findByUserId(1L)).thenReturn(Optional.empty());
+        assertThrows(ResourceNotFoundException.class, () -> service.create(dto, 1L));
     }
 
     @Test
-    void update_success_updatesAndEncodesPassword() {
+    void updateForOwner_success_updatesAndEncodesPassword() {
+        OwnerProfile owner = new OwnerProfile();
+        owner.setId(1L);
+        when(ownerProfileRepository.findByUserId(1L)).thenReturn(Optional.of(owner));
+        
         VolunteerUpdateDTO dto = new VolunteerUpdateDTO("X", null, null, null, "new");
         Volunteer v = new Volunteer();
-        when(repo.findById(1L)).thenReturn(Optional.of(v));
+        when(repo.findByIdAndOwnerProfileId(1L, 1L)).thenReturn(Optional.of(v));
         doAnswer(inv -> { ((Volunteer)inv.getArgument(1)).setFirstName("X"); return null; })
                 .when(mapper).updateVolunteerFromDto(eq(dto), any(Volunteer.class));
         when(encoder.encode("new")).thenReturn("ENC");
         when(repo.save(v)).thenReturn(v);
         when(mapper.toDto(v)).thenReturn(new VolunteerResponseDTO(1L, "X", "B", "e", "p", 1L, List.of()));
 
-        VolunteerResponseDTO res = service.update(1L, dto);
+        VolunteerResponseDTO res = service.updateForOwner(1L, dto, 1L);
         assertEquals("X", res.firstName());
         assertEquals("ENC", v.getPassword());
     }
 
     @Test
-    void update_notFound_throws() {
+    void updateForOwner_notFound_throws() {
+        OwnerProfile owner = new OwnerProfile();
+        owner.setId(1L);
+        when(ownerProfileRepository.findByUserId(1L)).thenReturn(Optional.of(owner));
+        
         VolunteerUpdateDTO dto = new VolunteerUpdateDTO(null, null, null, null, null);
-        when(repo.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> service.update(1L, dto));
+        when(repo.findByIdAndOwnerProfileId(1L, 1L)).thenReturn(Optional.empty());
+        assertThrows(ResourceNotFoundException.class, () -> service.updateForOwner(1L, dto, 1L));
     }
 
     @Test
-    void delete_checksOwnership() {
+    void deleteForOwner_checksOwnership() {
+        OwnerProfile owner = new OwnerProfile();
+        owner.setId(5L);
+        when(ownerProfileRepository.findByUserId(1L)).thenReturn(Optional.of(owner));
         when(repo.existsByIdAndOwnerProfileId(10L, 5L)).thenReturn(true);
-        service.delete(10L, 5L);
+        service.deleteForOwner(10L, 1L);
         verify(repo).deleteById(10L);
     }
 
     @Test
-    void delete_wrongOwner_throws() {
+    void deleteForOwner_wrongOwner_throws() {
+        OwnerProfile owner = new OwnerProfile();
+        owner.setId(5L);
+        when(ownerProfileRepository.findByUserId(1L)).thenReturn(Optional.of(owner));
         when(repo.existsByIdAndOwnerProfileId(10L, 5L)).thenReturn(false);
-        assertThrows(ResourceNotFoundException.class, () -> service.delete(10L, 5L));
+        assertThrows(ResourceNotFoundException.class, () -> service.deleteForOwner(10L, 1L));
         verify(repo, never()).deleteById(anyLong());
     }
 }

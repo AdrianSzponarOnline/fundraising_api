@@ -1,4 +1,4 @@
-package com.TaskSii.dto;
+package com.TaskSii.dto.collectionbox;
 
 import com.TaskSii.model.Currency;
 import jakarta.validation.constraints.DecimalMin;

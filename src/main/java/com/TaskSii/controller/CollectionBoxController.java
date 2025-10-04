@@ -1,16 +1,16 @@
 package com.TaskSii.controller;
 
-import com.TaskSii.dto.AddMoneyRequestDTO;
-import com.TaskSii.dto.AssignBoxRequestDTO;
-import com.TaskSii.dto.TransferRequestDTO;
-import com.TaskSii.dto.CollectionBoxDTO;
+import com.TaskSii.dto.collectionbox.*;
 import com.TaskSii.mapper.CollectionBoxMapper;
 import com.TaskSii.model.CollectionBox;
+import com.TaskSii.model.User;
 import com.TaskSii.service.CollectionBoxService;
 import jakarta.validation.Valid;
+import org.hibernate.internal.build.AllowSysOut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,27 +29,28 @@ public class CollectionBoxController {
 
     @PostMapping
     @PreAuthorize("hasRole('OWNER')")
-    public ResponseEntity<CollectionBoxDTO> registerBox() {
-        CollectionBox box = collectionBoxService.registerBox();
-        CollectionBoxDTO dto = collectionBoxMapper.toDTO(box);
-        return ResponseEntity.ok(dto);
+    public ResponseEntity<CollectionBoxDTO> registerBox(@AuthenticationPrincipal User user, @Valid @RequestBody CreateBoxRequestDTO requestDTO) {
+        CollectionBox box = collectionBoxService.registerBox(requestDTO.eventId(), user.getUser_id());
+        CollectionBoxDTO responseDto = collectionBoxMapper.toDTO(box);
+        return ResponseEntity.ok(responseDto);
     }
     @GetMapping
-    public ResponseEntity<List<CollectionBoxDTO>> getBoxes() {
+    @PreAuthorize("hasRole('OWNER')")
+    public ResponseEntity<List<CollectionBoxDTO>> getBoxes(@AuthenticationPrincipal User currentUser) {
         return ResponseEntity.ok(collectionBoxMapper.toDTO(
-                collectionBoxService.getAllBoxes()
+                collectionBoxService.getAllBoxesForOwner(currentUser.getUser_id())
         ));
     }
     @DeleteMapping
     @PreAuthorize("hasRole('OWNER')")
-    public ResponseEntity<Void> deleteBox(@RequestParam Long id){
-        collectionBoxService.deleteBox(id);
+    public ResponseEntity<Void> deleteBox(@RequestParam Long id, @AuthenticationPrincipal User currentUser){
+        collectionBoxService.deleteBoxForOwner(id, currentUser.getUser_id());
         return ResponseEntity.noContent().build();
     }
     @PutMapping("/assign")
     @PreAuthorize("hasRole('OWNER')")
-    public ResponseEntity<Void> assignToEvent(@Valid @RequestBody AssignBoxRequestDTO dto){
-        collectionBoxService.assignBoxToEvent(dto.boxId(), dto.eventId());
+    public ResponseEntity<Void> assignToEvent(@Valid @RequestBody AssignBoxRequestDTO dto, @AuthenticationPrincipal User currentUser){
+        collectionBoxService.assignBoxToEventForOwner(dto.boxId(), dto.eventId(), currentUser.getUser_id());
         return ResponseEntity.ok().build();
     }
     @PostMapping("/add-money")
@@ -60,8 +61,8 @@ public class CollectionBoxController {
     }
     @PostMapping("/transfer")
     @PreAuthorize("hasRole('OWNER')")
-    public ResponseEntity<Void> transfer(@Valid @RequestBody TransferRequestDTO dto) {
-        collectionBoxService.transferMoneyToEvent(dto.boxId());
+    public ResponseEntity<Void> transfer(@Valid @RequestBody TransferRequestDTO dto, @AuthenticationPrincipal User currentUser) {
+        collectionBoxService.transferMoneyToEventForOwner(dto.boxId(), currentUser.getUser_id());
         return ResponseEntity.ok().build();
     }
 }

@@ -10,6 +10,6 @@ import java.util.Optional;
 
 @Repository
 public interface OwnerProfileRepository extends JpaRepository<OwnerProfile, Long> {
-    @Query("SELECT op FROM OwnerProfile op WHERE op.user = :userId")
+    @Query("SELECT op FROM OwnerProfile op WHERE op.user.id = :userId")
     Optional<OwnerProfile> findByUserId(@Param("userId") Long userId);
 }

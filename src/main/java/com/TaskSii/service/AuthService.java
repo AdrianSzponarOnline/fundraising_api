@@ -1,7 +1,7 @@
 package com.TaskSii.service;
 
-import com.TaskSii.dto.AuthRequestDTO;
-import com.TaskSii.dto.AuthResponseDTO;
+import com.TaskSii.dto.auth.AuthRequestDTO;
+import com.TaskSii.dto.auth.AuthResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
