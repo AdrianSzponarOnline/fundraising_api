@@ -1,6 +1,6 @@
 package com.TaskSii.controller;
 
-import com.TaskSii.config.TestSecurityConfig;
+import com.TaskSii.config.ControllerTestConfig;
 import com.TaskSii.dto.collectionbox.CollectionBoxDTO;
 import com.TaskSii.mapper.CollectionBoxMapper;
 import com.TaskSii.model.CollectionBox;
@@ -13,8 +13,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -23,15 +25,14 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = CollectionBoxController.class)
 @org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc(addFilters = false)
-@org.springframework.context.annotation.Import(TestSecurityConfig.class)
+@Import(ControllerTestConfig.class)
 public class CollectionBoxControllerTest {
 
     @Autowired
@@ -54,11 +55,11 @@ public class CollectionBoxControllerTest {
         collectionBox = new CollectionBox();
         collectionBox.setId(1L);
 
-        collectionBoxDTO = new CollectionBoxDTO(1L, true, false, null, null, null, null, null, null);
+        collectionBoxDTO = new CollectionBoxDTO(1L, true, false, null, null, null, null, null, null, null);
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = "OWNER")
+    @WithUserDetails(value = "testuser", userDetailsServiceBeanName = "testUserDetailsService")
     void shouldRegisterBox() throws Exception {
         when(collectionBoxService.registerBox(anyLong(), anyLong())).thenReturn(collectionBox);
         when(collectionBoxMapper.toDTO(collectionBox)).thenReturn(collectionBoxDTO);
@@ -74,7 +75,7 @@ public class CollectionBoxControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = "OWNER")
+    @WithUserDetails(value = "testuser", userDetailsServiceBeanName = "testUserDetailsService")
     void shouldGetAllBoxes() throws Exception {
         List<CollectionBox> boxes = Arrays.asList(collectionBox);
         List<CollectionBoxDTO> boxDTOs = Arrays.asList(collectionBoxDTO);
@@ -82,8 +83,7 @@ public class CollectionBoxControllerTest {
         when(collectionBoxService.getAllBoxesForOwner(anyLong())).thenReturn(boxes);
         when(collectionBoxMapper.toDTO(boxes)).thenReturn(boxDTOs);
 
-        mockMvc.perform(get("/api/boxes")
-                        .with(csrf()))
+        mockMvc.perform(get("/api/boxes"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1L))
                 .andExpect(jsonPath("$[0].empty").value(true))
@@ -91,7 +91,20 @@ public class CollectionBoxControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = "OWNER")
+    @WithUserDetails(value = "testuser", userDetailsServiceBeanName = "testUserDetailsService")
+    void shouldGetBoxById() throws Exception {
+        when(collectionBoxService.getBoxByIdForOwner(eq(1L), anyLong())).thenReturn(collectionBox);
+        when(collectionBoxMapper.toDTO(collectionBox)).thenReturn(collectionBoxDTO);
+
+        mockMvc.perform(get("/api/boxes/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.empty").value(true))
+                .andExpect(jsonPath("$.assigned").value(false));
+    }
+
+    @Test
+    @WithUserDetails(value = "testuser", userDetailsServiceBeanName = "testUserDetailsService")
     void shouldDeleteBox() throws Exception {
         doNothing().when(collectionBoxService).deleteBoxForOwner(eq(1L), anyLong());
 
@@ -101,21 +114,28 @@ public class CollectionBoxControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = "OWNER")
+    @WithUserDetails(value = "testuser", userDetailsServiceBeanName = "testUserDetailsService")
     void shouldAssignBoxToEvent() throws Exception {
         String jsonBody = "{\"boxId\": 1, \"eventId\": 2}";
+        
+        CollectionBox assignedBox = new CollectionBox();
+        assignedBox.setId(1L);
+        CollectionBoxDTO assignedBoxDTO = new CollectionBoxDTO(1L, true, true, null, null, 2L, "Test Event", null, null, null);
 
-        doNothing().when(collectionBoxService).assignBoxToEventForOwner(eq(1L), eq(2L), anyLong());
+        when(collectionBoxService.assignBoxToEventForOwner(eq(1L), eq(2L), anyLong())).thenReturn(assignedBox);
+        when(collectionBoxMapper.toDTO(assignedBox)).thenReturn(assignedBoxDTO);
 
         mockMvc.perform(put("/api/boxes/assign")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.assigned").value(true));
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = "USER")
+    @WithUserDetails(value = "testuser", userDetailsServiceBeanName = "testUserDetailsService")
     void shouldAddMoneyToBox() throws Exception {
         String jsonBody = "{\"boxId\": 1, \"currency\": \"PLN\", \"amount\": 100.0}";
 
@@ -133,7 +153,7 @@ public class CollectionBoxControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = "OWNER")
+    @WithUserDetails(value = "testuser", userDetailsServiceBeanName = "testUserDetailsService")
     void shouldTransferMoney() throws Exception {
         doNothing().when(collectionBoxService).transferMoneyToEventForOwner(eq(1L), anyLong());
 
@@ -145,7 +165,7 @@ public class CollectionBoxControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = "USER")
+    @WithMockUser(roles = {"USER"})
     void shouldForbidAccessForNonOwners() throws Exception {
         mockMvc.perform(post("/api/boxes")
                         .with(csrf())

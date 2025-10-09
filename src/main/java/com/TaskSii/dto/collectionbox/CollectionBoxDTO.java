@@ -11,6 +11,7 @@ public record CollectionBoxDTO(
         Long eventId,
         String eventName,
         Long volunteerId,
-        String volunteerName)
+        String volunteerFirstName,
+        String volunteerLastName)
 {
 }

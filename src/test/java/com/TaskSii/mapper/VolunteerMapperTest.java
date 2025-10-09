@@ -65,4 +65,108 @@ public class VolunteerMapperTest {
         assertThat(entity.getPassword()).isEqualTo("newpass");
     }
 
+    @Test
+    void shouldMapEntityToResponseDto() {
+        Volunteer volunteer = Volunteer.builder()
+                .id(1L)
+                .firstName("John")
+                .lastName("Doe")
+                .email("john@test.pl")
+                .phoneNumber("+48123123123")
+                .password("password123")
+                .ownerProfile(com.TaskSii.model.OwnerProfile.builder().id(100L).build())
+                .collectionBox(null)
+                .build();
+
+        com.TaskSii.dto.VolunteerResponseDTO dto = mapper.toDto(volunteer);
+
+        assertThat(dto).isNotNull();
+        assertThat(dto.id()).isEqualTo(volunteer.getId());
+        assertThat(dto.firstName()).isEqualTo(volunteer.getFirstName());
+        assertThat(dto.lastName()).isEqualTo(volunteer.getLastName());
+        assertThat(dto.email()).isEqualTo(volunteer.getEmail());
+        assertThat(dto.phoneNumber()).isEqualTo(volunteer.getPhoneNumber());
+        assertThat(dto.ownerProfileId()).isEqualTo(100L);
+        assertThat(dto.collectionBoxes()).isNull(); // collectionBox is null, so collectionBoxes should be null
+    }
+
+    @Test
+    void shouldMapEntityToResponseDtoWithNullOwnerProfile() {
+        Volunteer volunteer = Volunteer.builder()
+                .id(1L)
+                .firstName("John")
+                .lastName("Doe")
+                .email("john@test.pl")
+                .phoneNumber("+48123123123")
+                .password("password123")
+                .ownerProfile(null)
+                .collectionBox(null)
+                .build();
+
+        com.TaskSii.dto.VolunteerResponseDTO dto = mapper.toDto(volunteer);
+
+        assertThat(dto).isNotNull();
+        assertThat(dto.id()).isEqualTo(volunteer.getId());
+        assertThat(dto.firstName()).isEqualTo(volunteer.getFirstName());
+        assertThat(dto.lastName()).isEqualTo(volunteer.getLastName());
+        assertThat(dto.email()).isEqualTo(volunteer.getEmail());
+        assertThat(dto.phoneNumber()).isEqualTo(volunteer.getPhoneNumber());
+        assertThat(dto.ownerProfileId()).isNull();
+        assertThat(dto.collectionBoxes()).isNull(); // collectionBox is null, so collectionBoxes should be null
+    }
+
+    @Test
+    void shouldUpdateEntityFromUpdateDtoWithAllNullValues() {
+        Volunteer entity = Volunteer.builder()
+                .id(200L)
+                .firstName("OldFirst")
+                .lastName("OldLast")
+                .email("old@test.pl")
+                .phoneNumber("12345")
+                .password("oldpass")
+                .build();
+
+        VolunteerUpdateDTO dto = new VolunteerUpdateDTO(
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        mapper.updateVolunteerFromDto(dto, entity);
+
+        // All values should remain unchanged due to null value property mapping strategy
+        assertThat(entity.getFirstName()).isEqualTo("OldFirst");
+        assertThat(entity.getLastName()).isEqualTo("OldLast");
+        assertThat(entity.getEmail()).isEqualTo("old@test.pl");
+        assertThat(entity.getPhoneNumber()).isEqualTo("12345");
+        assertThat(entity.getPassword()).isEqualTo("oldpass");
+    }
+
+    @Test
+    void shouldMapCreateDTOToEntityWithNullValues() {
+        VolunteerCreateDTO dto = new VolunteerCreateDTO(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        Volunteer entity = mapper.toEntity(dto);
+
+        assertThat(entity).isNotNull();
+        assertThat(entity.getFirstName()).isNull();
+        assertThat(entity.getLastName()).isNull();
+        assertThat(entity.getEmail()).isNull();
+        assertThat(entity.getPhoneNumber()).isNull();
+        assertThat(entity.getPassword()).isNull();
+        // OwnerProfileId is not a field in Volunteer model
+        assertThat(entity.getUser()).isNull();
+        assertThat(entity.getOwnerProfile()).isNull();
+        assertThat(entity.getCollectionBox()).isNull();
+    }
+
 }

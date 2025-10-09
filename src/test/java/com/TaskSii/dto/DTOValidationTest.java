@@ -2,8 +2,11 @@ package com.TaskSii.dto;
 
 import com.TaskSii.dto.auth.AuthRequestDTO;
 import com.TaskSii.dto.collectionbox.AddMoneyDTO;
+import com.TaskSii.dto.collectionbox.AddMoneyRequestDTO;
 import com.TaskSii.dto.collectionbox.AssignBoxDTO;
 import com.TaskSii.dto.collectionbox.AssignVolunteerRequestDTO;
+import com.TaskSii.dto.collectionbox.CreateBoxRequestDTO;
+import com.TaskSii.dto.collectionbox.TransferRequestDTO;
 import com.TaskSii.model.Currency;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -16,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DTOValidationTest {
@@ -211,14 +213,14 @@ class DTOValidationTest {
 
     @Test
     void fundraisingEventDTO_valid() {
-        FundraisingEventDTO dto = new FundraisingEventDTO(1L, "Event", Currency.EUR, new BigDecimal("0.00"));
+        FundraisingEventDTO dto = new FundraisingEventDTO(1L, "Event", Currency.EUR, new BigDecimal("0.00"), null);
         Set<ConstraintViolation<FundraisingEventDTO>> violations = validator.validate(dto);
         assertTrue(violations.isEmpty());
     }
 
     @Test
     void fundraisingEventDTO_invalid() {
-        FundraisingEventDTO dto = new FundraisingEventDTO(1L, "", null, null);
+        FundraisingEventDTO dto = new FundraisingEventDTO(1L, "", null, null, null);
         Set<ConstraintViolation<FundraisingEventDTO>> violations = validator.validate(dto);
         assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("name")));
         assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("currency")));
@@ -238,6 +240,88 @@ class DTOValidationTest {
         Set<ConstraintViolation<AssignVolunteerRequestDTO>> violations = validator.validate(dto);
         assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("volunteerId")));
         assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("boxId")));
+    }
+
+    @Test
+    void addMoneyRequestDTO_valid() {
+        AddMoneyRequestDTO dto = new AddMoneyRequestDTO(1L, Currency.PLN, new BigDecimal("10.50"));
+        Set<ConstraintViolation<AddMoneyRequestDTO>> violations = validator.validate(dto);
+        assertTrue(violations.isEmpty());
+    }
+
+    @Test
+    void addMoneyRequestDTO_invalid() {
+        AddMoneyRequestDTO dto = new AddMoneyRequestDTO(null, null, new BigDecimal("0.00"));
+        Set<ConstraintViolation<AddMoneyRequestDTO>> violations = validator.validate(dto);
+        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("boxId")));
+        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("currency")));
+        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("amount")));
+    }
+
+    @Test
+    void addMoneyRequestDTO_invalidBoxId() {
+        AddMoneyRequestDTO dto = new AddMoneyRequestDTO(-1L, Currency.PLN, new BigDecimal("10.50"));
+        Set<ConstraintViolation<AddMoneyRequestDTO>> violations = validator.validate(dto);
+        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("boxId")));
+    }
+
+    @Test
+    void addMoneyRequestDTO_invalidAmount() {
+        AddMoneyRequestDTO dto = new AddMoneyRequestDTO(1L, Currency.PLN, new BigDecimal("-5.00"));
+        Set<ConstraintViolation<AddMoneyRequestDTO>> violations = validator.validate(dto);
+        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("amount")));
+    }
+
+    @Test
+    void transferRequestDTO_valid() {
+        TransferRequestDTO dto = new TransferRequestDTO(1L);
+        Set<ConstraintViolation<TransferRequestDTO>> violations = validator.validate(dto);
+        assertTrue(violations.isEmpty());
+    }
+
+    @Test
+    void transferRequestDTO_invalid() {
+        TransferRequestDTO dto = new TransferRequestDTO(null);
+        Set<ConstraintViolation<TransferRequestDTO>> violations = validator.validate(dto);
+        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("boxId")));
+    }
+
+    @Test
+    void transferRequestDTO_invalidBoxId() {
+        TransferRequestDTO dto = new TransferRequestDTO(-1L);
+        Set<ConstraintViolation<TransferRequestDTO>> violations = validator.validate(dto);
+        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("boxId")));
+    }
+
+    @Test
+    void createBoxRequestDTO_valid() {
+        CreateBoxRequestDTO dto = new CreateBoxRequestDTO(1L);
+        Set<ConstraintViolation<CreateBoxRequestDTO>> violations = validator.validate(dto);
+        assertTrue(violations.isEmpty());
+    }
+
+    @Test
+    void createBoxRequestDTO_withNullEventId() {
+        CreateBoxRequestDTO dto = new CreateBoxRequestDTO(null);
+        Set<ConstraintViolation<CreateBoxRequestDTO>> violations = validator.validate(dto);
+        // CreateBoxRequestDTO has no validation constraints, so this should be valid
+        assertTrue(violations.isEmpty());
+    }
+
+    @Test
+    void financialReportDTO_valid() {
+        FinancialReportDTO dto = new FinancialReportDTO("Test Event", new BigDecimal("100.50"), Currency.PLN);
+        Set<ConstraintViolation<FinancialReportDTO>> violations = validator.validate(dto);
+        // FinancialReportDTO has no validation constraints, so this should be valid
+        assertTrue(violations.isEmpty());
+    }
+
+    @Test
+    void financialReportDTO_withNullValues() {
+        FinancialReportDTO dto = new FinancialReportDTO(null, null, null);
+        Set<ConstraintViolation<FinancialReportDTO>> violations = validator.validate(dto);
+        // FinancialReportDTO has no validation constraints, so this should be valid
+        assertTrue(violations.isEmpty());
     }
 }
 

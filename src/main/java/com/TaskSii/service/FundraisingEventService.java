@@ -34,6 +34,10 @@ public class FundraisingEventService {
 
         return fundraisingEventRepository.save(event);
     }
+    public FundraisingEvent getFundraisingEventByIdAndOwnerId(Long eventId, Long ownerId) {
+        FundraisingEvent event = fundraisingEventRepository.findByIdAndOwnerProfileIdWithBoxes(eventId, ownerId).orElseThrow(() -> new ResourceNotFoundException("Fundraising event not found for id " + eventId));
+        return event;
+    }
 
     public List<FundraisingEvent> getAllEventsForOwner(Long userId) {
         Long ownerProfileId = ownerProfileRepository.findByUserId(userId)

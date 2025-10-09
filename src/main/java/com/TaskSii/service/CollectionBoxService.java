@@ -54,7 +54,6 @@ public class CollectionBoxService {
         return collectionBoxRepository.save(box);
     }
 
-
     public List<CollectionBox> getAllBoxesForOwner(Long userId) {
         Long ownerProfileId = ownerProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Owner profile not found for user"))
@@ -66,7 +65,7 @@ public class CollectionBoxService {
     public List<CollectionBox> getAllBoxes() {
         return collectionBoxRepository.findAll();
     }
-
+    @Transactional
     public void deleteBoxForOwner(Long boxId, Long userId) {
         Long ownerProfileId = ownerProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Owner profile not found for user"))
@@ -84,7 +83,7 @@ public class CollectionBoxService {
 
 
     @Transactional
-    public void assignBoxToEventForOwner(Long boxId, Long eventId, Long userId) {
+    public CollectionBox assignBoxToEventForOwner(Long boxId, Long eventId, Long userId) {
         Long ownerProfileId = ownerProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Owner profile not found for user"))
                 .getId();
@@ -103,7 +102,7 @@ public class CollectionBoxService {
                 .orElseThrow(() -> new ResourceNotFoundException("Event with id " + eventId + " not found or access denied"));
         
         event.addCollectionBox(box);
-        collectionBoxRepository.save(box);
+        return collectionBoxRepository.save(box);
     }
 
 

@@ -7,14 +7,14 @@ import com.TaskSii.model.FundraisingEvent;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
 
-@Mapper(componentModel = "spring")
+
+@Mapper(componentModel = "spring", uses = CollectionBoxMapper.class)
 public interface FundraisingEventMapper {
 
     FundraisingEventDTO toDTO(FundraisingEvent event);
     @Mapping(target = "ownerProfile", ignore = true)
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "collectionBoxes", ignore = true)
     FundraisingEvent toEntity (FundraisingEventDTO dto);
 
     @Mapping(source = "name", target = "eventName")
@@ -23,4 +23,6 @@ public interface FundraisingEventMapper {
     @Mapping(target = "eventName", source = "name")
     @Mapping(target = "amount", source = "accountBalance")
     FinancialReportDTO toFinancialReport(FundraisingEvent event);
+
+    List<FundraisingEventDTO> toFundraisingEventList(List<FundraisingEvent> dtoList);
 }

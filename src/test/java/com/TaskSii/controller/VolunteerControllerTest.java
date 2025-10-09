@@ -1,8 +1,10 @@
 package com.TaskSii.controller;
 
+import com.TaskSii.config.ControllerTestConfig;
 import com.TaskSii.dto.VolunteerCreateDTO;
 import com.TaskSii.dto.VolunteerResponseDTO;
 import com.TaskSii.dto.VolunteerUpdateDTO;
+import com.TaskSii.dto.collectionbox.AssignVolunteerRequestDTO;
 import com.TaskSii.service.VolunteerService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -12,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.context.annotation.Import;
 
 import java.util.List;
 
@@ -21,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = VolunteerController.class)
 @org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc(addFilters = false)
+@Import(ControllerTestConfig.class)
 class VolunteerControllerTest {
 
     @Autowired
@@ -88,6 +92,18 @@ class VolunteerControllerTest {
         Mockito.doNothing().when(volunteerService).deleteForOwner(eq(10L), anyLong());
         mockMvc.perform(delete("/api/volunteers/10"))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @WithMockUser(roles = {"OWNER"})
+    void assignVolunteerToBox_assignsVolunteer() throws Exception {
+        Mockito.doNothing().when(volunteerService).assignVolunteerToBox(any(AssignVolunteerRequestDTO.class), anyLong());
+
+        String body = "{\"volunteerId\": 1, \"boxId\": 2}";
+        mockMvc.perform(post("/api/volunteers/assign")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isOk());
     }
 }
 

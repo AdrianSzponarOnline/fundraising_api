@@ -50,7 +50,90 @@ public class AddressMapperTest {
         assertThat(address.getState()).isEqualTo(dto.state());
         assertThat(address.getCountry()).isEqualTo(dto.country());
         assertThat(address.getPostalCode()).isEqualTo(dto.postalCode());
+    }
 
+    @Test
+    void shouldMapAddressToAddressDTOWithNullValues() {
+        Address address = Address.builder()
+                .id(null)
+                .streetName(null)
+                .city(null)
+                .state(null)
+                .country(null)
+                .postalCode(null)
+                .build();
+
+        AddressDTO dto = mapper.toAddressDTO(address);
+
+        assertThat(dto.id()).isNull();
+        assertThat(dto.streetName()).isNull();
+        assertThat(dto.city()).isNull();
+        assertThat(dto.state()).isNull();
+        assertThat(dto.country()).isNull();
+        assertThat(dto.postalCode()).isNull();
+    }
+
+    @Test
+    void shouldMapAddressDTOToAddressWithNullValues() {
+        AddressDTO dto = new AddressDTO(
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        Address address = mapper.fromAddressDTO(dto);
+
+        assertThat(address.getId()).isNull();
+        assertThat(address.getOwner()).isNull();
+        assertThat(address.getStreetName()).isNull();
+        assertThat(address.getCity()).isNull();
+        assertThat(address.getState()).isNull();
+        assertThat(address.getCountry()).isNull();
+        assertThat(address.getPostalCode()).isNull();
+    }
+
+    @Test
+    void shouldMapAddressToAddressDTOWithEmptyStrings() {
+        Address address = Address.builder()
+                .id(1L)
+                .streetName("")
+                .city("")
+                .state("")
+                .country("")
+                .postalCode("")
+                .build();
+
+        AddressDTO dto = mapper.toAddressDTO(address);
+
+        assertThat(dto.id()).isEqualTo(address.getId());
+        assertThat(dto.streetName()).isEqualTo("");
+        assertThat(dto.city()).isEqualTo("");
+        assertThat(dto.state()).isEqualTo("");
+        assertThat(dto.country()).isEqualTo("");
+        assertThat(dto.postalCode()).isEqualTo("");
+    }
+
+    @Test
+    void shouldMapAddressDTOToAddressWithEmptyStrings() {
+        AddressDTO dto = new AddressDTO(
+                "",
+                "",
+                "",
+                "",
+                ""
+        );
+
+        Address address = mapper.fromAddressDTO(dto);
+
+        assertThat(address.getId()).isNull();
+        assertThat(address.getOwner()).isNull();
+        assertThat(address.getStreetName()).isEqualTo("");
+        assertThat(address.getCity()).isEqualTo("");
+        assertThat(address.getState()).isEqualTo("");
+        assertThat(address.getCountry()).isEqualTo("");
+        assertThat(address.getPostalCode()).isEqualTo("");
     }
 }
 

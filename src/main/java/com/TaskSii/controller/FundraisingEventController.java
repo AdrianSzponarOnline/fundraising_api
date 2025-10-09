@@ -36,6 +36,18 @@ public class FundraisingEventController {
         return ResponseEntity.ok(fundraisingEventDTOResponse);
     }
 
+    @GetMapping()
+    public ResponseEntity<List<FundraisingEventDTO>> getFundraisingEventsForOwner(@AuthenticationPrincipal User currentUser) {
+        List<FundraisingEventDTO> fundraisingEventDTOS = fundraisingEventMapper.toFundraisingEventList(fundraisingEventService.getAllEventsForOwner(currentUser.getUser_id()));
+        return ResponseEntity.ok(fundraisingEventDTOS);
+    }
+    @GetMapping("/{eventId}")
+    public ResponseEntity<FundraisingEventDTO> getFundraisingEventForOwner(@PathVariable Long eventId, @AuthenticationPrincipal User currentUser) {
+        FundraisingEventDTO dto = fundraisingEventMapper.toDTO(fundraisingEventService.getFundraisingEventByIdAndOwnerId(eventId, currentUser.getUser_id()));
+        return ResponseEntity.ok(dto);
+    }
+
+
     @GetMapping("/report")
     @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<List<FinancialReportDTO>> getFundraisingEventReport(@AuthenticationPrincipal User currentUser) {

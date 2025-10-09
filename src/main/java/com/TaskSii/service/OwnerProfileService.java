@@ -3,6 +3,7 @@ package com.TaskSii.service;
 import com.TaskSii.exception.ResourceNotFoundException;
 import com.TaskSii.model.OwnerProfile;
 import com.TaskSii.repository.OwnerProfileRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ public class OwnerProfileService {
                 .orElseThrow(() -> new ResourceNotFoundException("OwnerProfile with id " + id + " not found" ));
 
     }
+    @Transactional
     public OwnerProfile save(OwnerProfile ownerProfile) {
         return ownerProfileRepository.save(ownerProfile);
     }
